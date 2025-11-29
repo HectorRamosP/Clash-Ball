@@ -76,8 +76,11 @@ func _physics_process(delta):
 	var input_dir = get_input_direction()
 
 	# Procesar tacleo
-	if Input.is_action_just_pressed(tackle_key) and can_use_tackle():
-		perform_tackle(input_dir)
+	if Input.is_action_just_pressed(tackle_key):
+		if can_use_tackle():
+			perform_tackle(input_dir)
+		else:
+			print(player_id + " NO puede tacklear. Tacleos: " + str(remaining_tackles) + ", Can tackle: " + str(can_tackle) + ", Is tackling: " + str(is_tackling))
 
 	# Movimiento normal (si no está tacleando)
 	if not is_tackling:
@@ -121,6 +124,8 @@ func handle_movement(direction: Vector2, delta: float):
 	move_and_slide()
 
 func update_stamina(direction: Vector2, delta: float):
+	var old_stamina = stamina
+
 	if direction != Vector2.ZERO:
 		# Drenar estamina al moverse
 		stamina -= GameConfig.STAMINA_DRAIN_RATE * delta
@@ -129,8 +134,10 @@ func update_stamina(direction: Vector2, delta: float):
 		# Regenerar estamina al no moverse
 		stamina += GameConfig.STAMINA_REGEN_RATE * delta
 		stamina = min(GameConfig.MAX_STAMINA, stamina)
-	
-	stamina_changed.emit(stamina)
+
+	# Solo emitir si cambió
+	if abs(old_stamina - stamina) > 0.1:
+		stamina_changed.emit(stamina)
 
 func can_use_tackle() -> bool:
 	# Puede tacklear si tiene tacleos disponibles
@@ -189,7 +196,7 @@ func set_ball_reference(ball_node: CharacterBody2D):
 	ball = ball_node
 
 func handle_player_collisions():
-	# Detectar colisiones con otros jugadores
+	# Detectar colisiones con otros jugadores Y con la pelota
 	for i in get_slide_collision_count():
 		var collision = get_slide_collision(i)
 		var collider = collision.get_collider()
@@ -205,3 +212,18 @@ func handle_player_collisions():
 
 			# Aplicar empuje al otro jugador (CharacterBody2D siempre tiene velocity)
 			collider.velocity += push_direction * push_strength * get_physics_process_delta_time()
+
+		# Si chocamos con la pelota
+		elif collider.name == "Ball":
+			var push_direction = collision.get_normal() * -1
+			var push_strength = current_push_force
+
+			# Si está tacleando, mucha más fuerza
+			if is_tackling:
+				push_strength *= 3.0
+
+			# Empujar la pelota
+			var push_force_vector = (push_direction * push_strength) + (velocity * 0.8)
+			collider.velocity = push_force_vector
+
+			print(player_id + " golpeó la pelota! Fuerza: " + str(push_force_vector.length()))
