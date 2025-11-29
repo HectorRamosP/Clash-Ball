@@ -1,55 +1,68 @@
 extends Node2D
 
 @export var goal_width: float = 200.0
-@export var goal_depth: float = 60.0
-@export var post_thickness: float = 10.0
+@export var goal_depth: float = 80.0
+@export var post_thickness: float = 12.0
 @export var is_left_goal: bool = true
 
 func _draw():
-	var color = Color.WHITE
+	var post_color = Color.WHITE
+	var net_color = Color(0.8, 0.8, 0.8, 0.5)
+	var back_color = Color(0.2, 0.2, 0.2, 0.3)
 
 	if is_left_goal:
-		# Poste izquierdo (arriba)
-		draw_rect(Rect2(0, -goal_width/2, post_thickness, post_thickness), color)
+		# FONDO OSCURO (para ver la profundidad)
+		var back_points = PackedVector2Array()
+		back_points.append(Vector2(0, -goal_width/2))
+		back_points.append(Vector2(-goal_depth, -goal_width/2 + 20))
+		back_points.append(Vector2(-goal_depth, goal_width/2 - 20))
+		back_points.append(Vector2(0, goal_width/2))
+		draw_colored_polygon(back_points, back_color)
 
-		# Poste izquierdo (abajo)
-		draw_rect(Rect2(0, goal_width/2 - post_thickness, post_thickness, post_thickness), color)
+		# RED (líneas diagonales)
+		for i in range(5):
+			var y_start = lerp(-goal_width/2, goal_width/2, float(i) / 4.0)
+			draw_line(Vector2(0, y_start), Vector2(-goal_depth, y_start), net_color, 1.5)
 
-		# Línea trasera curva
-		var points = PackedVector2Array()
-		points.append(Vector2(post_thickness/2, -goal_width/2 + post_thickness/2))
+		for i in range(4):
+			var x_pos = -goal_depth * (float(i) / 3.0)
+			draw_line(Vector2(x_pos, -goal_width/2), Vector2(x_pos, goal_width/2), net_color, 1.5)
 
-		# Curva hacia adentro
-		var segments = 20
-		for i in range(segments + 1):
-			var t = float(i) / float(segments)
-			var y = lerp(-goal_width/2, goal_width/2, t)
-			var x_curve = -goal_depth * sin(t * PI)
-			points.append(Vector2(x_curve, y))
+		# POSTES BLANCOS
+		# Poste superior
+		draw_rect(Rect2(-5, -goal_width/2 - post_thickness/2, post_thickness, post_thickness), post_color)
 
-		points.append(Vector2(post_thickness/2, goal_width/2 - post_thickness/2))
+		# Poste inferior
+		draw_rect(Rect2(-5, goal_width/2 - post_thickness/2, post_thickness, post_thickness), post_color)
 
-		draw_polyline(points, color, post_thickness/2)
+		# Línea de la portería (frente)
+		draw_line(Vector2(0, -goal_width/2), Vector2(0, goal_width/2), post_color, 4.0)
+
 	else:
-		# Portería derecha (espejo)
-		# Poste derecho (arriba)
-		draw_rect(Rect2(-post_thickness, -goal_width/2, post_thickness, post_thickness), color)
+		# PORTERÍA DERECHA (espejo)
+		# FONDO OSCURO
+		var back_points = PackedVector2Array()
+		back_points.append(Vector2(0, -goal_width/2))
+		back_points.append(Vector2(goal_depth, -goal_width/2 + 20))
+		back_points.append(Vector2(goal_depth, goal_width/2 - 20))
+		back_points.append(Vector2(0, goal_width/2))
+		draw_colored_polygon(back_points, back_color)
 
-		# Poste derecho (abajo)
-		draw_rect(Rect2(-post_thickness, goal_width/2 - post_thickness, post_thickness, post_thickness), color)
+		# RED
+		for i in range(5):
+			var y_start = lerp(-goal_width/2, goal_width/2, float(i) / 4.0)
+			draw_line(Vector2(0, y_start), Vector2(goal_depth, y_start), net_color, 1.5)
 
-		# Línea trasera curva
-		var points = PackedVector2Array()
-		points.append(Vector2(-post_thickness/2, -goal_width/2 + post_thickness/2))
+		for i in range(4):
+			var x_pos = goal_depth * (float(i) / 3.0)
+			draw_line(Vector2(x_pos, -goal_width/2), Vector2(x_pos, goal_width/2), net_color, 1.5)
 
-		# Curva hacia adentro
-		var segments = 20
-		for i in range(segments + 1):
-			var t = float(i) / float(segments)
-			var y = lerp(-goal_width/2, goal_width/2, t)
-			var x_curve = goal_depth * sin(t * PI)
-			points.append(Vector2(x_curve, y))
+		# POSTES BLANCOS
+		# Poste superior
+		draw_rect(Rect2(-7, -goal_width/2 - post_thickness/2, post_thickness, post_thickness), post_color)
 
-		points.append(Vector2(-post_thickness/2, goal_width/2 - post_thickness/2))
+		# Poste inferior
+		draw_rect(Rect2(-7, goal_width/2 - post_thickness/2, post_thickness, post_thickness), post_color)
 
-		draw_polyline(points, color, post_thickness/2)
+		# Línea de la portería (frente)
+		draw_line(Vector2(0, -goal_width/2), Vector2(0, goal_width/2), post_color, 4.0)
