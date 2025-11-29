@@ -17,13 +17,13 @@ const CLASS_STATS = {
 		"name": "Sprinter",
 		"speed": 400.0,
 		"push_force": 300.0,
-		"initial_tackles": 2
+		"initial_tackles": 5  # Velocidad a cambio de menos tacleos
 	},
 	PlayerClass.TANK: {
 		"name": "Tank",
 		"speed": 250.0,
 		"push_force": 600.0,
-		"initial_tackles": 4
+		"initial_tackles": 10  # Más tacleos por ser tanque
 	}
 }
 

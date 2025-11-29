@@ -11,6 +11,9 @@
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_wall"]
 size = Vector2(1280, 40)
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_sidewall"]
+size = Vector2(40, 720)
+
 [node name="GameField" type="Node2D"]
 script = ExtResource("1_field")
 
@@ -61,12 +64,42 @@ offset_right = 640.0
 offset_bottom = 20.0
 color = Color(0.3, 0.3, 0.3, 1)
 
+[node name="LeftWall" type="StaticBody2D" parent="Walls"]
+position = Vector2(20, 360)
+collision_layer = 4
+collision_mask = 3
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Walls/LeftWall"]
+shape = SubResource("RectangleShape2D_sidewall")
+
+[node name="Visual" type="ColorRect" parent="Walls/LeftWall"]
+offset_left = -20.0
+offset_top = -360.0
+offset_right = 20.0
+offset_bottom = 360.0
+color = Color(0.3, 0.3, 0.3, 1)
+
+[node name="RightWall" type="StaticBody2D" parent="Walls"]
+position = Vector2(1260, 360)
+collision_layer = 4
+collision_mask = 3
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Walls/RightWall"]
+shape = SubResource("RectangleShape2D_sidewall")
+
+[node name="Visual" type="ColorRect" parent="Walls/RightWall"]
+offset_left = -20.0
+offset_top = -360.0
+offset_right = 20.0
+offset_bottom = 360.0
+color = Color(0.3, 0.3, 0.3, 1)
+
 [node name="GoalLeft" parent="." instance=ExtResource("4_goal")]
-position = Vector2(0, 360)
+position = Vector2(20, 360)
 goal_team = 1
 
 [node name="GoalRight" parent="." instance=ExtResource("4_goal")]
-position = Vector2(1280, 360)
+position = Vector2(1260, 360)
 goal_team = 2
 
 [node name="Ball" parent="." instance=ExtResource("3_ball")]

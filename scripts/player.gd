@@ -137,12 +137,13 @@ func can_use_tackle() -> bool:
 	return can_tackle and remaining_tackles > 0 and not is_tackling
 
 func perform_tackle(direction: Vector2):
+	# Si no hay dirección, usar la dirección hacia adelante del equipo
 	if direction == Vector2.ZERO:
 		direction = Vector2(1, 0) if team == 1 else Vector2(-1, 0)
-	
-	# Aplicar impulso del tacleo
-	velocity = direction * GameConfig.TACKLE_FORCE
-	
+
+	# Aplicar impulso FUERTE del tacleo
+	velocity = direction * GameConfig.TACKLE_FORCE * 1.5
+
 	# Estado de tacleo
 	is_tackling = true
 	tackle_duration_timer = GameConfig.TACKLE_DURATION
@@ -154,9 +155,8 @@ func perform_tackle(direction: Vector2):
 	# Cooldown del tacleo
 	can_tackle = false
 	tackle_cooldown_timer = GameConfig.TACKLE_COOLDOWN
-	
-	# Aquí podrías añadir efectos visuales o sonidos
-	print(player_id + " realizó un tacleo!")
+
+	print(player_id + " ¡TACLEO! Tacleos restantes: " + str(remaining_tackles))
 
 func update_timers(delta: float):
 	# Timer de duración del tacleo

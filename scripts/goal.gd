@@ -6,9 +6,15 @@ extends Area2D
 # ===== SEÑALES =====
 signal goal_scored()
 
+@onready var visual = $Visual
+
 func _ready():
 	# Conectar señal de detección
 	body_entered.connect(_on_body_entered)
+
+	# Configurar visual según el equipo
+	if visual:
+		visual.is_left_goal = (goal_team == 1)
 
 func _on_body_entered(body):
 	# Verificar si es la pelota
