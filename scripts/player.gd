@@ -203,6 +203,5 @@ func handle_player_collisions():
 			if is_tackling:
 				push_strength *= 2.5
 
-			# Aplicar empuje al otro jugador
-			if collider.has("velocity"):
-				collider.velocity += push_direction * push_strength * get_physics_process_delta_time()
+			# Aplicar empuje al otro jugador (CharacterBody2D siempre tiene velocity)
+			collider.velocity += push_direction * push_strength * get_physics_process_delta_time()

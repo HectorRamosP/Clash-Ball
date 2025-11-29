@@ -37,9 +37,6 @@ func _ready():
 	setup_ui()
 
 func setup_field():
-	# Configurar tamaño de la ventana
-	get_viewport().size = Vector2i(field_width, field_height)
-
 	# Calcular posiciones iniciales
 	ball_start_pos = Vector2(field_width / 2, field_height / 2)
 
