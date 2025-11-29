@@ -9,6 +9,11 @@ extends Node2D
 @onready var goal_left = $GoalLeft
 @onready var goal_right = $GoalRight
 
+# UI
+@onready var player1_hud = $UI/Player1HUD
+@onready var player2_hud = $UI/Player2HUD
+@onready var scoreboard = $UI/Scoreboard
+
 # ===== PUNTUACIÓN =====
 var score_team1: int = 0
 var score_team2: int = 0
@@ -29,6 +34,7 @@ func _ready():
 	setup_positions()
 	reset_positions()
 	connect_signals()
+	setup_ui()
 
 func setup_field():
 	# Configurar tamaño de la ventana
@@ -62,6 +68,21 @@ func connect_signals():
 		player3.set_ball_reference(ball)
 	if player4:
 		player4.set_ball_reference(ball)
+
+	# Conectar señal de actualización de marcador
+	score_updated.connect(_on_score_updated)
+
+func setup_ui():
+	# Configurar HUD de jugadores
+	if player1_hud and player1:
+		player1_hud.player_reference = player1
+	if player2_hud and player2:
+		player2_hud.player_reference = player2
+
+func _on_score_updated(team1: int, team2: int):
+	# Actualizar el marcador visual
+	if scoreboard:
+		scoreboard.update_score(team1, team2)
 
 func reset_positions():
 	# Resetear pelota

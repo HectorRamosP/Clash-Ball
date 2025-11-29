@@ -1,0 +1,39 @@
+[gd_scene load_steps=2 format=3 uid="uid://c8vkmx5n7qb3w"]
+
+[ext_resource type="Script" path="res://scripts/player_hud.gd" id="1_hud"]
+
+[node name="PlayerHUD" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 200.0
+offset_bottom = 80.0
+script = ExtResource("1_hud")
+
+[node name="ClassLabel" type="Label" parent="."]
+layout_mode = 0
+offset_right = 200.0
+offset_bottom = 23.0
+text = "Sprinter"
+horizontal_alignment = 1
+
+[node name="StaminaBG" type="ColorRect" parent="."]
+layout_mode = 0
+offset_top = 30.0
+offset_right = 200.0
+offset_bottom = 50.0
+color = Color(0.2, 0.2, 0.2, 1)
+
+[node name="StaminaBar" type="ColorRect" parent="."]
+layout_mode = 0
+offset_top = 30.0
+offset_right = 200.0
+offset_bottom = 50.0
+color = Color(0.2, 0.6, 1, 1)
+
+[node name="TacklesLabel" type="Label" parent="."]
+layout_mode = 0
+offset_top = 55.0
+offset_right = 200.0
+offset_bottom = 78.0
+text = "Tackles: 2"
+horizontal_alignment = 1
