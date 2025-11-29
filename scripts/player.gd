@@ -10,6 +10,7 @@ var move_down: String = "p1_down"
 var move_left: String = "p1_left"
 var move_right: String = "p1_right"
 var tackle_key: String = "p1_tackle"
+var shoot_key: String = "p1_shoot"
 
 # ===== ESTADÍSTICAS BASE =====
 var player_class: GameConfig.PlayerClass = GameConfig.PlayerClass.SPRINTER
@@ -51,6 +52,7 @@ func setup_controls():
 	move_left = "p" + player_num + "_left"
 	move_right = "p" + player_num + "_right"
 	tackle_key = "p" + player_num + "_tackle"
+	shoot_key = "p" + player_num + "_shoot"
 
 func load_class_stats():
 	# Obtener la clase del jugador desde GameConfig
@@ -81,6 +83,10 @@ func _physics_process(delta):
 			perform_tackle(input_dir)
 		else:
 			print(player_id + " NO puede tacklear. Tacleos: " + str(remaining_tackles) + ", Can tackle: " + str(can_tackle) + ", Is tackling: " + str(is_tackling))
+
+	# Procesar disparo
+	if Input.is_action_just_pressed(shoot_key):
+		perform_shoot(input_dir)
 
 	# Movimiento normal (si no está tacleando)
 	if not is_tackling:
@@ -165,6 +171,29 @@ func perform_tackle(direction: Vector2):
 
 	print(player_id + " ¡TACLEO! Tacleos restantes: " + str(remaining_tackles))
 
+func perform_shoot(direction: Vector2):
+	# Disparar la pelota si está cerca
+	if not ball:
+		return
+
+	var distance_to_ball = global_position.distance_to(ball.global_position)
+
+	# Solo puede disparar si la pelota está cerca (80px o menos)
+	if distance_to_ball > 80:
+		return
+
+	# Dirección del disparo
+	var shoot_dir = direction
+	if shoot_dir == Vector2.ZERO:
+		# Si no hay dirección, disparar hacia donde apunta el equipo
+		shoot_dir = Vector2(1, 0) if team == 1 else Vector2(-1, 0)
+
+	# Aplicar GRAN fuerza a la pelota
+	var shoot_force = current_push_force * 5.0  # 5x la fuerza normal
+	ball.velocity = shoot_dir * shoot_force
+
+	print(player_id + " ¡DISPARO! Fuerza: " + str(shoot_force))
+
 func update_timers(delta: float):
 	# Timer de duración del tacleo
 	if tackle_duration_timer > 0:
@@ -206,12 +235,15 @@ func handle_player_collisions():
 			var push_direction = collision.get_normal() * -1
 			var push_strength = current_push_force
 
-			# Si está tacleando, el empuje es mucho mayor
+			# Si está tacleando, SACAR VOLANDO al rival
 			if is_tackling:
-				push_strength *= 2.5
-
-			# Aplicar empuje al otro jugador (CharacterBody2D siempre tiene velocity)
-			collider.velocity += push_direction * push_strength * get_physics_process_delta_time()
+				push_strength *= GameConfig.TACKLE_PUSH_MULTIPLIER  # 8x más fuerte
+				# Hacer que el rival pierda el control temporalmente
+				collider.velocity = push_direction * push_strength
+				print(player_id + " ¡SACA VOLANDO a " + collider.player_id + "!")
+			else:
+				# Empuje normal
+				collider.velocity += push_direction * push_strength * get_physics_process_delta_time()
 
 		# Si chocamos con la pelota
 		elif collider.name == "Ball":
