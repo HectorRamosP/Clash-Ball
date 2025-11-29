@@ -5,12 +5,11 @@ extends CharacterBody2D
 @export var team: int = 1  # 1 = izquierda (azul), 2 = derecha (rojo)
 
 # ===== CONTROLES =====
-@export_group("Controls")
-@export var move_up: String = "ui_up"
-@export var move_down: String = "ui_down"
-@export var move_left: String = "ui_left"
-@export var move_right: String = "ui_right"
-@export var tackle_key: String = "ui_accept"  # Espacio o Enter
+var move_up: String = "p1_up"
+var move_down: String = "p1_down"
+var move_left: String = "p1_left"
+var move_right: String = "p1_right"
+var tackle_key: String = "p1_tackle"
 
 # ===== ESTADÍSTICAS BASE =====
 var player_class: GameConfig.PlayerClass = GameConfig.PlayerClass.SPRINTER
@@ -46,11 +45,23 @@ signal power_activated(power_type: GameConfig.PowerType)
 signal power_ended()
 
 func _ready():
+	# Mapear controles según player_id
+	setup_controls()
+
 	# Cargar estadísticas según la clase asignada
 	load_class_stats()
-	
+
 	# Conectar señales del GameConfig
 	GameConfig.power_granted.connect(_on_power_granted)
+
+func setup_controls():
+	# Mapear automáticamente los controles según el ID del jugador
+	var player_num = player_id.substr(6, 1)  # Extrae "1" de "player1"
+	move_up = "p" + player_num + "_up"
+	move_down = "p" + player_num + "_down"
+	move_left = "p" + player_num + "_left"
+	move_right = "p" + player_num + "_right"
+	tackle_key = "p" + player_num + "_tackle"
 
 func load_class_stats():
 	# Obtener la clase del jugador desde GameConfig
