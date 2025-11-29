@@ -40,18 +40,17 @@ func handle_collision(collision: KinematicCollision2D):
 
 func handle_player_collision(player: CharacterBody2D, collision: KinematicCollision2D):
 	last_hit_by = player
-	if player.has_method("get"):
-		last_hit_team = player.team
-	
+	last_hit_team = player.team
+
 	var push_direction = collision.get_normal() * -1
-	var push_force = player.current_push_force if player.has("current_push_force") else 300.0
+	var push_force = player.current_push_force
 	var player_velocity_contribution = player.velocity * 0.5
-	
+
 	velocity = (push_direction * push_force) + player_velocity_contribution
-	
+
 	if velocity.length() > max_speed:
 		velocity = velocity.normalized() * max_speed
-	
+
 	ball_hit.emit(player)
 
 func handle_wall_collision(collision: KinematicCollision2D):
