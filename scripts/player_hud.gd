@@ -26,8 +26,8 @@ func connect_to_player():
 	_on_tackles_changed(player_reference.remaining_tackles)
 
 func update_class_label():
-	var class_name = GameConfig.get_class_stats(player_reference.player_class).name
-	class_label.text = class_name
+	var player_class_name = GameConfig.get_class_stats(player_reference.player_class).name
+	class_label.text = player_class_name
 
 func update_hud_color():
 	# Color según el equipo
