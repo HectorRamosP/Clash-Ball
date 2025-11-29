@@ -1,9 +1,10 @@
-[gd_scene load_steps=2 format=3 uid="uid://d2vx8qkm3tny7"]
+[gd_scene load_steps=3 format=3 uid="uid://d2vx8qkm3tny7"]
 
 [ext_resource type="Script" path="res://scripts/goal.gd" id="1_goal"]
+[ext_resource type="Script" path="res://scripts/goal_visual.gd" id="2_visual"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_goal"]
-size = Vector2(50, 200)
+size = Vector2(80, 200)
 
 [node name="Goal" type="Area2D"]
 collision_layer = 0
@@ -13,16 +14,5 @@ script = ExtResource("1_goal")
 [node name="GoalArea" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_goal")
 
-[node name="VisualPost" type="ColorRect" parent="."]
-offset_left = -30.0
-offset_top = -100.0
-offset_right = -20.0
-offset_bottom = 100.0
-color = Color(1, 1, 1, 1)
-
-[node name="VisualPost2" type="ColorRect" parent="."]
-offset_left = 20.0
-offset_top = -100.0
-offset_right = 30.0
-offset_bottom = 100.0
-color = Color(1, 1, 1, 1)
+[node name="Visual" type="Node2D" parent="."]
+script = ExtResource("2_visual")

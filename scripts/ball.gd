@@ -17,18 +17,22 @@ func _ready():
 	bounce_factor = GameConfig.BALL_BOUNCE
 
 func _physics_process(delta):
-	velocity *= friction
-	
-	if velocity.length() < 5:
-		velocity = Vector2.ZERO
-	
-	if velocity.length() > max_speed:
-		velocity = velocity.normalized() * max_speed
-	
+	# Mover la pelota
 	var collision = move_and_collide(velocity * delta)
-	
+
 	if collision:
 		handle_collision(collision)
+
+	# Aplicar fricción DESPUÉS del movimiento
+	velocity *= friction
+
+	# Detener si va muy lento
+	if velocity.length() < 5:
+		velocity = Vector2.ZERO
+
+	# Limitar velocidad máxima
+	if velocity.length() > max_speed:
+		velocity = velocity.normalized() * max_speed
 
 func handle_collision(collision: KinematicCollision2D):
 	var collider = collision.get_collider()
@@ -44,7 +48,12 @@ func handle_player_collision(player: CharacterBody2D, collision: KinematicCollis
 
 	var push_direction = collision.get_normal() * -1
 	var push_force = player.current_push_force
-	var player_velocity_contribution = player.velocity * 0.5
+
+	# Si el jugador está tacleando, mucha más fuerza
+	if player.is_tackling:
+		push_force *= 3.0
+
+	var player_velocity_contribution = player.velocity * 0.8
 
 	velocity = (push_direction * push_force) + player_velocity_contribution
 
