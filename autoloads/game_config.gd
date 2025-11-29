@@ -6,14 +6,6 @@ enum PlayerClass {
 	TANK
 }
 
-enum PowerType {
-	NONE,
-	SUPER_SPEED,      # Supervelocidad
-	SUPER_STRENGTH,   # Fuerza aumentada
-	MAGNETO,          # Pelota pegada
-	UNLIMITED_TACKLES # Tacleos ilimitados
-}
-
 enum GameMode {
 	ONE_VS_ONE,
 	TWO_VS_TWO
@@ -33,22 +25,6 @@ const CLASS_STATS = {
 		"push_force": 600.0,
 		"initial_tackles": 4
 	}
-}
-
-# ===== CONFIGURACIÓN DE PODERES =====
-const POWER_DURATION = {
-	PowerType.SUPER_SPEED: 5.0,
-	PowerType.SUPER_STRENGTH: 5.0,
-	PowerType.MAGNETO: 8.0,
-	PowerType.UNLIMITED_TACKLES: 3.0
-}
-
-const POWER_NAMES = {
-	PowerType.NONE: "Ninguno",
-	PowerType.SUPER_SPEED: "Supervelocidad",
-	PowerType.SUPER_STRENGTH: "Superfuerza",
-	PowerType.MAGNETO: "Magneto",
-	PowerType.UNLIMITED_TACKLES: "Tacleos Ilimitados"
 }
 
 # ===== CONFIGURACIÓN GENERAL DEL JUEGO =====
@@ -75,28 +51,10 @@ var player_classes = {
 
 # Señales para comunicación entre escenas
 signal goal_scored(team: int)
-signal power_granted(player_id: String, power: PowerType)
 
 # ===== FUNCIONES AUXILIARES =====
 func get_class_stats(player_class: PlayerClass) -> Dictionary:
 	return CLASS_STATS[player_class]
-
-func get_random_power() -> PowerType:
-	var powers = [
-		PowerType.SUPER_SPEED,
-		PowerType.SUPER_STRENGTH,
-		PowerType.MAGNETO,
-		PowerType.UNLIMITED_TACKLES
-	]
-	return powers[randi() % powers.size()]
-
-func get_power_name(power: PowerType) -> String:
-	return POWER_NAMES[power]
-
-func get_power_duration(power: PowerType) -> float:
-	if power in POWER_DURATION:
-		return POWER_DURATION[power]
-	return 0.0
 
 func reset_game_settings():
 	current_game_mode = GameMode.ONE_VS_ONE
