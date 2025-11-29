@@ -25,24 +25,16 @@ var remaining_tackles: int = 2
 var can_tackle: bool = true
 var is_tackling: bool = false
 
-# ===== SISTEMA DE PODERES =====
-var current_power: GameConfig.PowerType = GameConfig.PowerType.NONE
-var power_timer: float = 0.0
-var is_power_active: bool = false
-
 # ===== TIMERS =====
 var tackle_cooldown_timer: float = 0.0
 var tackle_duration_timer: float = 0.0
 
 # ===== REFERENCIAS =====
 var ball: CharacterBody2D = null
-var magneto_active: bool = false
 
 # ===== SEÑALES =====
 signal stamina_changed(new_stamina: float)
 signal tackles_changed(remaining: int)
-signal power_activated(power_type: GameConfig.PowerType)
-signal power_ended()
 
 func _ready():
 	# Mapear controles según player_id
@@ -50,9 +42,6 @@ func _ready():
 
 	# Cargar estadísticas según la clase asignada
 	load_class_stats()
-
-	# Conectar señales del GameConfig
-	GameConfig.power_granted.connect(_on_power_granted)
 
 func setup_controls():
 	# Mapear automáticamente los controles según el ID del jugador
@@ -82,27 +71,26 @@ func load_class_stats():
 func _physics_process(delta):
 	# Actualizar timers
 	update_timers(delta)
-	
+
 	# Obtener input del jugador
 	var input_dir = get_input_direction()
-	
+
 	# Procesar tacleo
 	if Input.is_action_just_pressed(tackle_key) and can_use_tackle():
 		perform_tackle(input_dir)
-	
+
 	# Movimiento normal (si no está tacleando)
 	if not is_tackling:
 		handle_movement(input_dir, delta)
 	else:
 		# Durante el tacleo, mantener el impulso
 		move_and_slide()
-	
+
 	# Actualizar estamina
 	update_stamina(input_dir, delta)
-	
-	# Sistema Magneto
-	if magneto_active and ball:
-		apply_magneto_effect()
+
+	# Detectar colisiones con otros jugadores para empujar
+	handle_player_collisions()
 
 func get_input_direction() -> Vector2:
 	var direction = Vector2.ZERO
@@ -145,9 +133,8 @@ func update_stamina(direction: Vector2, delta: float):
 	stamina_changed.emit(stamina)
 
 func can_use_tackle() -> bool:
-	# Puede tacklear si tiene tacleos disponibles o el poder de tacleos ilimitados
-	var has_tackles = remaining_tackles > 0 or (current_power == GameConfig.PowerType.UNLIMITED_TACKLES)
-	return can_tackle and has_tackles and not is_tackling
+	# Puede tacklear si tiene tacleos disponibles
+	return can_tackle and remaining_tackles > 0 and not is_tackling
 
 func perform_tackle(direction: Vector2):
 	if direction == Vector2.ZERO:
@@ -159,12 +146,11 @@ func perform_tackle(direction: Vector2):
 	# Estado de tacleo
 	is_tackling = true
 	tackle_duration_timer = GameConfig.TACKLE_DURATION
-	
-	# Decrementar tacleos si no tiene el poder activo
-	if current_power != GameConfig.PowerType.UNLIMITED_TACKLES:
-		remaining_tackles -= 1
-		tackles_changed.emit(remaining_tackles)
-	
+
+	# Decrementar tacleos
+	remaining_tackles -= 1
+	tackles_changed.emit(remaining_tackles)
+
 	# Cooldown del tacleo
 	can_tackle = false
 	tackle_cooldown_timer = GameConfig.TACKLE_COOLDOWN
@@ -184,70 +170,6 @@ func update_timers(delta: float):
 		tackle_cooldown_timer -= delta
 		if tackle_cooldown_timer <= 0:
 			can_tackle = true
-	
-	# Timer del poder activo
-	if power_timer > 0:
-		power_timer -= delta
-		if power_timer <= 0:
-			deactivate_power()
-
-func _on_power_granted(granted_player_id: String, power: GameConfig.PowerType):
-	if granted_player_id == player_id:
-		activate_power(power)
-
-func activate_power(power: GameConfig.PowerType):
-	# Desactivar poder anterior si existe
-	if is_power_active:
-		deactivate_power()
-	
-	current_power = power
-	power_timer = GameConfig.get_power_duration(power)
-	is_power_active = true
-	
-	# Aplicar efectos según el poder
-	match power:
-		GameConfig.PowerType.SUPER_SPEED:
-			current_speed = base_speed * 1.5
-		
-		GameConfig.PowerType.SUPER_STRENGTH:
-			current_push_force = base_push_force * 2.0
-		
-		GameConfig.PowerType.MAGNETO:
-			magneto_active = true
-		
-		GameConfig.PowerType.UNLIMITED_TACKLES:
-			pass  # Se maneja en can_use_tackle()
-	
-	power_activated.emit(power)
-	print(player_id + " activó: " + GameConfig.get_power_name(power))
-
-func deactivate_power():
-	# Restaurar valores base
-	match current_power:
-		GameConfig.PowerType.SUPER_SPEED:
-			current_speed = base_speed
-		
-		GameConfig.PowerType.SUPER_STRENGTH:
-			current_push_force = base_push_force
-		
-		GameConfig.PowerType.MAGNETO:
-			magneto_active = false
-	
-	current_power = GameConfig.PowerType.NONE
-	is_power_active = false
-	power_ended.emit()
-	print(player_id + " poder terminado")
-
-func apply_magneto_effect():
-	if ball:
-		# Atraer la pelota hacia el jugador suavemente
-		var direction_to_ball = global_position.direction_to(ball.global_position)
-		var distance = global_position.distance_to(ball.global_position)
-		
-		# Solo atraer si está cerca
-		if distance < 150:
-			var attraction_force = -direction_to_ball * 200.0
-			ball.velocity += attraction_force * get_physics_process_delta_time()
 
 func reset_for_goal():
 	# Restaurar tacleos
@@ -265,3 +187,22 @@ func reset_for_goal():
 
 func set_ball_reference(ball_node: CharacterBody2D):
 	ball = ball_node
+
+func handle_player_collisions():
+	# Detectar colisiones con otros jugadores
+	for i in get_slide_collision_count():
+		var collision = get_slide_collision(i)
+		var collider = collision.get_collider()
+
+		# Si chocamos con otro jugador
+		if collider is CharacterBody2D and collider.has_method("get_input_direction"):
+			var push_direction = collision.get_normal() * -1
+			var push_strength = current_push_force
+
+			# Si está tacleando, el empuje es mucho mayor
+			if is_tackling:
+				push_strength *= 2.5
+
+			# Aplicar empuje al otro jugador
+			if collider.has("velocity"):
+				collider.velocity += push_direction * push_strength * get_physics_process_delta_time()
