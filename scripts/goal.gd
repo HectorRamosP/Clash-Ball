@@ -7,6 +7,7 @@ extends Area2D
 signal goal_scored()
 
 @onready var visual = $Visual
+@onready var goal_area = $GoalArea
 
 func _ready():
 	# Conectar señal de detección
@@ -15,6 +16,13 @@ func _ready():
 	# Configurar visual según el equipo
 	if visual:
 		visual.is_left_goal = (goal_team == 1)
+
+	# Mover el área de detección hacia el INTERIOR de la portería
+	if goal_area:
+		if goal_team == 1:  # Portería izquierda
+			goal_area.position.x = -30  # Mover hacia la izquierda (interior)
+		else:  # Portería derecha
+			goal_area.position.x = 30  # Mover hacia la derecha (interior)
 
 func _on_body_entered(body):
 	# Verificar si es la pelota
