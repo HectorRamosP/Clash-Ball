@@ -95,11 +95,11 @@ offset_bottom = 360.0
 color = Color(0.3, 0.3, 0.3, 1)
 
 [node name="GoalLeft" parent="." instance=ExtResource("4_goal")]
-position = Vector2(40, 360)
+position = Vector2(20, 360)
 goal_team = 1
 
 [node name="GoalRight" parent="." instance=ExtResource("4_goal")]
-position = Vector2(1240, 360)
+position = Vector2(1260, 360)
 goal_team = 2
 
 [node name="Ball" parent="." instance=ExtResource("3_ball")]
