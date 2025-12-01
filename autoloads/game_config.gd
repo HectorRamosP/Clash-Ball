@@ -21,8 +21,8 @@ const CLASS_STATS = {
 	},
 	PlayerClass.TANK: {
 		"name": "Tank",
-		"speed": 270.0,  # Aumentado para mejor jugabilidad
-		"push_force": 650.0,  # Aumentado para mayor diferencia
+		"speed": 350.0,  # Muy rápido y poderoso
+		"push_force": 900.0,  # Super fuerte para dominar
 		"initial_tackles": 10
 	}
 }
