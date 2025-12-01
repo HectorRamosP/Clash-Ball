@@ -34,7 +34,7 @@ func _ready():
 	setup_positions()
 	reset_positions()
 	connect_signals()
-	setup_ui()
+	# setup_ui()  # HUD desactivado
 
 func setup_field():
 	# Calcular posiciones iniciales
