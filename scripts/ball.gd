@@ -46,7 +46,8 @@ func handle_player_collision(player: CharacterBody2D, collision: KinematicCollis
 	last_hit_by = player
 	last_hit_team = player.team
 
-	var push_direction = collision.get_normal() * -1
+	# Calcular dirección desde el jugador hacia el balón (para evitar que se pegue)
+	var push_direction = (global_position - player.global_position).normalized()
 	var push_force = player.current_push_force
 
 	# Si el jugador está tacleando, mucha más fuerza
