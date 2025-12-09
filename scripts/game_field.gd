@@ -115,10 +115,27 @@ func _on_goal_scored(scoring_team: int):
 	if score_team1 >= max_score:
 		match_ended.emit(1)
 		print("¡Equipo 1 (Azul) GANÓ!")
+		# Reiniciar el partido completo después de 3 segundos
+		await get_tree().create_timer(3.0).timeout
+		restart_match()
 	elif score_team2 >= max_score:
 		match_ended.emit(2)
 		print("¡Equipo 2 (Rojo) GANÓ!")
+		# Reiniciar el partido completo después de 3 segundos
+		await get_tree().create_timer(3.0).timeout
+		restart_match()
 	else:
 		# Reiniciar posiciones después de un pequeño delay
 		await get_tree().create_timer(2.0).timeout
 		reset_positions()
+
+func restart_match():
+	# Reiniciar marcador a 0-0
+	score_team1 = 0
+	score_team2 = 0
+	score_updated.emit(score_team1, score_team2)
+
+	# Reiniciar posiciones
+	reset_positions()
+
+	print("¡Nuevo partido iniciado!")
